@@ -16,7 +16,7 @@ async function getGroqChatCompletion(text) {
         messages: [
             {
                 role: 'user',
-                content: `Simplify the following legal text for common people:\n${text}`,
+                content: `Simplify the following legal text and simplify it for people who are not well versed in legal lingo. Start the reply with the answer directly, don't say silly shit like "here's the answer" or some other nonsense. Also divide the answer into meaningful headings such as "Allegations, repurcussions etc" but be smart about it. Keep it crisp and meaninngful, don't beat around the bush' \n${text}`,
             },
         ],
         model: 'llama3-8b-8192', // Using the specified model
