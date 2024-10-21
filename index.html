@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Legal Document Simplifier</title>
     <style>
-        /* Reset some default styles */
         * {
             margin: 0;
             padding: 0;
@@ -75,7 +74,6 @@
             white-space: pre-wrap;
         }
 
-        /* For smaller screens */
         @media(max-width: 600px) {
             h1 {
                 font-size: 1.5rem;
@@ -87,7 +85,6 @@
             }
         }
 
-        /* Loader animation */
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #007bff;
@@ -125,7 +122,6 @@
             const loader = document.getElementById('loader');
             const simplifiedTextDiv = document.getElementById('simplifiedText');
 
-            // Clear previous results and show loader
             simplifiedTextDiv.innerHTML = '';
             loader.classList.remove('hidden');
 
