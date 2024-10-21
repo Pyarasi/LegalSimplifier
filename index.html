@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal Document Simplifier</title>
+    <title>LawXplain</title>
     <style>
         * {
             margin: 0;
@@ -20,15 +20,20 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url('courtroom.jpg');
+            background-size: cover;
+            background-position: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
             width: 90%;
             max-width: 800px;
+            position: relative;
         }
 
         h1 {
@@ -58,7 +63,9 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             display: block;
-            width: 100%;
+            width: 48%;
+            margin: 5px 1%;
+            float: left;
         }
 
         button:hover {
@@ -72,6 +79,13 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             white-space: pre-wrap;
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
         }
 
         @media(max-width: 600px) {
@@ -103,13 +117,30 @@
         .hidden {
             display: none;
         }
+
+        .dark-mode {
+            background-color: #333;
+            color: #f0f2f5;
+        }
+
+        .dark-mode .container {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Legal Document Simplifier</h1>
+        <h1>LawXplain</h1>
+        <div class="mode-toggle">
+            <label for="mode">Mode:</label>
+            <select id="mode" onchange="toggleMode()">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+        </div>
         <textarea id="documentInput" rows="10" placeholder="Paste your legal document here"></textarea>
-        <button onclick="simplifyDocument()">Simplify</button>
+        <button onclick="analyzeDocument()">Analyze</button>
+        <button onclick="resetDocument()">Reset</button>
 
         <div id="loader" class="loader hidden"></div>
 
@@ -117,7 +148,7 @@
     </div>
 
     <script>
-        async function simplifyDocument() {
+        async function analyzeDocument() {
             const text = document.getElementById('documentInput').value;
             const loader = document.getElementById('loader');
             const simplifiedTextDiv = document.getElementById('simplifiedText');
@@ -126,7 +157,7 @@
             loader.classList.remove('hidden');
 
             try {
-                const response = await fetch('http://localhost:3000/simplify', {
+                const response = await fetch('http://localhost:3000/analyze', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -135,11 +166,25 @@
                 });
 
                 const data = await response.json();
-                simplifiedTextDiv.innerHTML = `<h3>Simplified Document:</h3><p>${data.simplifiedText}</p>`;
+                simplifiedTextDiv.innerHTML = `<h3>Analyzed Document:</h3><p>${data.simplifiedText}</p>`;
             } catch (error) {
-                simplifiedTextDiv.innerHTML = '<p style="color:red;">Error simplifying the document.</p>';
+                simplifiedTextDiv.innerHTML = '<p style="color:red;">Error analyzing the document.</p>';
             } finally {
                 loader.classList.add('hidden');
+            }
+        }
+
+        function resetDocument() {
+            document.getElementById('documentInput').value = '';
+            document.getElementById('simplifiedText').innerHTML = '';
+        }
+
+        function toggleMode() {
+            const mode = document.getElementById('mode').value;
+            if (mode === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
             }
         }
     </script>
