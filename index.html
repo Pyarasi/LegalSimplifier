@@ -3,172 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LawXplain</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-image: url('courtroom.jpg');
-            background-size: cover;
-            background-position: center;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 800px;
-            position: relative;
-        }
-
-        h1 {
-            font-size: 2rem;
-            color: #007bff;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            resize: vertical;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            display: block;
-            width: 48%;
-            margin: 5px 1%;
-            float: left;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #simplifiedText {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            white-space: pre-wrap;
-        }
-
-        .mode-toggle {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-        }
-
-        @media(max-width: 600px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            button {
-                font-size: 0.9rem;
-                padding: 10px;
-            }
-        }
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .dark-mode {
-            background-color: #333;
-            color: #f0f2f5;
-        }
-
-        .dark-mode .container {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-    </style>
+    <title>LawXplain - Accessible</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>LawXplain</h1>
-        <div class="mode-toggle">
-            <label for="mode">Mode:</label>
-            <select id="mode" onchange="toggleMode()">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-            </select>
+    <nav aria-label="Main navigation">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="results.html">Results</a></li>
+        </ul>
+    </nav>
+    <div class="container" role="main">
+        <h1 id="main-heading" tabindex="0">LawXplain</h1>
+        <textarea id="documentInput" rows="10" placeholder="Paste your legal document here" aria-label="Document input"></textarea>
+        <div class="button-group">
+            <button onclick="analyzeDocument()" aria-label="Analyze document">Analyze</button>
+            <button onclick="resetDocument()" aria-label="Reset input">Reset</button>
+            <button onclick="readTextAloud()" id="readAloudButton" aria-label="Read text aloud">Read Aloud</button>
         </div>
-        <textarea id="documentInput" rows="10" placeholder="Paste your legal document here"></textarea>
-        <button onclick="analyzeDocument()">Analyze</button>
-        <button onclick="resetDocument()">Reset</button>
-
-        <div id="loader" class="loader hidden"></div>
-
-        <div id="simplifiedText"></div>
+        <div id="loader" class="loader hidden" aria-live="polite"></div>
+        <div id="simplifiedText" aria-live="polite"></div>
+        <div class="accessibility-controls">
+            <label for="text-size">Adjust Text Size:</label>
+            <button onclick="changeTextSize(14)" aria-label="Small text size">Small</button>
+            <button onclick="changeTextSize(18)" aria-label="Medium text size">Medium</button>
+            <button onclick="changeTextSize(22)" aria-label="Large text size">Large</button>
+            <button onclick="toggleHighContrast()" aria-label="Toggle high contrast mode">Toggle High Contrast</button>
+        </div>
     </div>
-
     <script>
-        async function analyzeDocument() {
-            const text = document.getElementById('documentInput').value;
-            const loader = document.getElementById('loader');
-            const simplifiedTextDiv = document.getElementById('simplifiedText');
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("highContrast") === "true") {
+                document.body.classList.add("high-contrast");
+            }
+        });
 
-            simplifiedTextDiv.innerHTML = '';
+        function toggleHighContrast() {
+            document.body.classList.toggle("high-contrast");
+            const isHighContrast = document.body.classList.contains("high-contrast");
+            localStorage.setItem("highContrast", isHighContrast);
+        }
+
+        async function analyzeDocument() {
+            const inputField = document.getElementById('documentInput');
+            const loader = document.getElementById('loader');
+            const resultField = document.getElementById('simplifiedText');
+
             loader.classList.remove('hidden');
+            resultField.textContent = ''; 
 
             try {
-                const response = await fetch('http://localhost:3000/analyze', {
+                const response = await fetch('http://localhost:3000/simplify', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ text }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: inputField.value }),
                 });
 
                 const data = await response.json();
-                simplifiedTextDiv.innerHTML = `<h3>Analyzed Document:</h3><p>${data.simplifiedText}</p>`;
+                if (response.ok) {
+                    localStorage.setItem('result', data.simplifiedText);
+                    window.location.href = 'results.html';
+                } else {
+                    resultField.textContent = data.error || 'Failed to analyze document.';
+                }
             } catch (error) {
-                simplifiedTextDiv.innerHTML = '<p style="color:red;">Error analyzing the document.</p>';
+                resultField.textContent = 'Error analyzing document. Please try again.';
             } finally {
                 loader.classList.add('hidden');
             }
@@ -176,16 +75,24 @@
 
         function resetDocument() {
             document.getElementById('documentInput').value = '';
-            document.getElementById('simplifiedText').innerHTML = '';
+            document.getElementById('simplifiedText').textContent = '';
+            localStorage.removeItem('result');
         }
 
-        function toggleMode() {
-            const mode = document.getElementById('mode').value;
-            if (mode === 'dark') {
-                document.body.classList.add('dark-mode');
-            } else {
-                document.body.classList.remove('dark-mode');
+        function readTextAloud() {
+            const text = document.getElementById('simplifiedText').textContent;
+            if (!text) {
+                alert("No text available to read aloud. Please analyze a document first.");
+                return;
             }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function changeTextSize(size) {
+            document.documentElement.style.fontSize = size + "px";
         }
     </script>
 </body>
